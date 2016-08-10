@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather Monitoring in RxJS</title>
+  <style>
+    #form {
+      margin-bottom: 20px;
+    }
+    .location {
+      float: left;
+      padding: 10px;
+      margin-right: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .location p {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .zip { font-size: 2em; }
+    .temp { font-size: 4em; }
+  </style>
+</head>
+<body>
+  <div id="form">
+    <label>Zip Code:</label>
+    <input type="text">
+    <button id="add-location">Add Location</button>
+  </div>
+  <div class="location">
+    <p class="zip">45212</p>
+    <p class="temp">83&deg;F</p>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.1.0/rx.all.min.js"></script>
+</body>
+</html>
