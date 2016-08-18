@@ -52,11 +52,22 @@
         .map(e => e.target.value)
         .filter(zip => zip.length === 5)
         .distinct()
+        .buffer(btnClickStream)
+        .filter(Boolean)
+        .filter(buf => buf.length > 0)
+        .map(zips => zips[zips.length - 1]);
+        // .map(({ main: { temp } }) => temp);
 
     // Process zipcode data
     zipcodeStream
-      .buffer(btnClickStream)
-      // .last()
+      .flatMap(zip => {
+        return Rx.Observable
+          .fromPromise(
+            fetch(`http://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&APPID=dc34bf2362e70d187c5260789689c52c`)
+              .then(res => res.json())
+          )
+      })
+      .map(({ main: { temp } }) => temp)
       .forEach(
         (...args) => console.log('onNext', ...args),
         (...args) => console.log('onError', ...args),
