@@ -51,15 +51,13 @@
         .fromEvent(zipcodeInput, 'input')
         .map(e => e.target.value)
         .filter(zip => zip.length === 5)
-        .distinct()
-        .buffer(btnClickStream)
-        .filter(Boolean)
-        .filter(buf => buf.length > 0)
-        .map(zips => zips[zips.length - 1]);
-        // .map(({ main: { temp } }) => temp);
+
+    btnClickStream
+      .withLatestFrom(zipcodeStream, (click, zip) => zip)
+      .distinct();
 
     // Process zipcode data
-    zipcodeStream
+    const temperatureStream = zipcodeStream
       .flatMap(zip => {
         return Rx.Observable
           .fromPromise(
@@ -67,29 +65,27 @@
               .then(res => res.json())
           )
       })
-      .map(({ main: { temp } }) => temp)
-      .forEach(
-        (...args) => console.log('onNext', ...args),
-        (...args) => console.log('onError', ...args),
-        (...args) => console.log('onCompleted', ...args)
-      );
+      .map(({ main: { temp } }) => temp);
 
-    // addLocationStream.forEach(click => {
-    //   const locationEle = document.createElement('div');
-    //   locationEle.classList.add('location');
+    // // Merge temperature and zipcode so we have both
+    // temperatureStream
+    //   .combineLatest(zipcodeStream)
+    //   .forEach(([temp, zip]) => {
+    //     const locationEle = document.createElement('div');
+    //     locationEle.classList.add('location');
 
-    //   const zipEle = document.createElement('p');
-    //   zipEle.classList.add('zip');
-    //   zipEle.innerText = click;
+    //     const zipEle = document.createElement('p');
+    //     zipEle.classList.add('zip');
+    //     zipEle.innerText = zip;
 
-    //   const tempEle = document.createElement('p');
-    //   tempEle.classList.add('temp');
-    //   tempEle.innerText = Math.floor(Math.random() * 100);
+    //     const tempEle = document.createElement('p');
+    //     tempEle.classList.add('temp');
+    //     tempEle.innerHTML = `${Math.floor(temp)}&deg;F`;
 
-    //   locationEle.appendChild(zipEle);
-    //   locationEle.appendChild(tempEle);
-    //   appContainer.appendChild(locationEle);
-    // });
+    //     locationEle.appendChild(zipEle);
+    //     locationEle.appendChild(tempEle);
+    //     appContainer.appendChild(locationEle);
+    //   });
   </script>
 </body>
 </html>
