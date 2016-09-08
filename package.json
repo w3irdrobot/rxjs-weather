@@ -1,0 +1,25 @@
+{
+  "name": "rxjs-weather",
+  "version": "1.0.0",
+  "description": "Weather monitoring written in RxJS",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/searsaw/rxjs-weather.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/searsaw/rxjs-weather/issues"
+  },
+  "homepage": "https://github.com/searsaw/rxjs-weather#readme",
+  "devDependencies": {
+    "eslint": "^3.4.0",
+    "eslint-config-airbnb-base": "^7.0.0",
+    "eslint-plugin-import": "^1.14.0"
+  }
+}

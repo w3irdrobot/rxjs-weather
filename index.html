@@ -46,46 +46,65 @@
         .map(() => true);
 
     // Get stream of zip codes
-    const zipcodeStream =
+    const zipInputStream =
       Rx.Observable
         .fromEvent(zipcodeInput, 'input')
         .map(e => e.target.value)
-        .filter(zip => zip.length === 5)
+        .filter(zip => zip.length === 5);
 
-    btnClickStream
-      .withLatestFrom(zipcodeStream, (click, zip) => zip)
-      .distinct();
+    // Get zipcode after button clicked
+    const zipcodeStream =
+      btnClickStream
+        .withLatestFrom(zipInputStream, (click, zip) => zip)
+        .distinct();
 
-    // Process zipcode data
-    const temperatureStream = zipcodeStream
-      .flatMap(zip => {
-        return Rx.Observable
-          .fromPromise(
-            fetch(`http://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&APPID=dc34bf2362e70d187c5260789689c52c`)
-              .then(res => res.json())
-          )
-      })
-      .map(({ main: { temp } }) => temp);
+    // Create reusable temperature fetching stream
+    const getTemperature = zip =>
+      fetch(`http://api.openweathermap.org/data/2.5/weather?q=${zip},us&units=imperial&appid=dc34bf2362e70d187c5260789689c52c`)
+        .then(res => res.json());
 
-    // // Merge temperature and zipcode so we have both
-    // temperatureStream
-    //   .combineLatest(zipcodeStream)
-    //   .forEach(([temp, zip]) => {
-    //     const locationEle = document.createElement('div');
-    //     locationEle.classList.add('location');
+    const zipTemperatureStreamFactory = zip =>
+      Rx.Observable
+        .fromPromise(getTemperature(zip))
+        .map(({ main: { temp } }) => ({ temp, zip }));
 
-    //     const zipEle = document.createElement('p');
-    //     zipEle.classList.add('zip');
-    //     zipEle.innerText = zip;
+    // Get new zip at each button click, get its
+    // temperature, and paint it to the screen
+    zipcodeStream
+      .flatMap(zipTemperatureStreamFactory)
+      .forEach(({ zip, temp }) => {
+        const locationEle = document.createElement('div');
+        locationEle.classList.add(`zip-${zip}`);
+        locationEle.classList.add('location');
 
-    //     const tempEle = document.createElement('p');
-    //     tempEle.classList.add('temp');
-    //     tempEle.innerHTML = `${Math.floor(temp)}&deg;F`;
+        const zipEle = document.createElement('p');
+        zipEle.classList.add('zip');
+        zipEle.innerText = zip;
 
-    //     locationEle.appendChild(zipEle);
-    //     locationEle.appendChild(tempEle);
-    //     appContainer.appendChild(locationEle);
-    //   });
-  </script>
+        const tempEle = document.createElement('p');
+        tempEle.classList.add('temp');
+        tempEle.innerHTML = `${Math.floor(temp)}&deg;F`;
+
+        locationEle.appendChild(zipEle);
+        locationEle.appendChild(tempEle);
+        appContainer.appendChild(locationEle);
+      });
+
+    // Create stream that can replay all zips at will
+    const replayZipsStream = new Rx.ReplaySubject();
+    zipcodeStream.subscribe(replayZipsStream);
+
+    // Create a timer to refresh the data
+    // and update the page
+    Rx.Observable
+      .interval(20000)
+      .flatMap(() => replayZipsStream)
+      .do(
+        (...args) => console.log('next2', ...args),
+        (...args) => console.log('error2', ...args),
+        (...args) => console.log('done2', ...args)
+      )
+      .forEach((...args) => console.log('forEach', ...args));
+</script>
 </body>
 </html>
