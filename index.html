@@ -97,8 +97,8 @@
     // Create a timer to refresh the data
     // and update the page
     Rx.Observable
-      .interval(20000)
-      .flatMap(() => replayZipsStream)
+      .interval(3000)
+      .flatMapLatest(() => replayZipsStream)
       .do(
         (...args) => console.log('next2', ...args),
         (...args) => console.log('error2', ...args),
