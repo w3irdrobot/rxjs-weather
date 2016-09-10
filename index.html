@@ -74,7 +74,7 @@
       .flatMap(zipTemperatureStreamFactory)
       .forEach(({ zip, temp }) => {
         const locationEle = document.createElement('div');
-        locationEle.classList.add(`zip-${zip}`);
+        locationEle.id = `zip-${zip}`;
         locationEle.classList.add('location');
 
         const zipEle = document.createElement('p');
@@ -83,11 +83,13 @@
 
         const tempEle = document.createElement('p');
         tempEle.classList.add('temp');
-        tempEle.innerHTML = `${Math.floor(temp)}&deg;F`;
+        tempEle.innerHTML = `${temp}&deg;F`;
 
         locationEle.appendChild(zipEle);
         locationEle.appendChild(tempEle);
         appContainer.appendChild(locationEle);
+
+        zipcodeInput.value = '';
       });
 
     // Create stream that can replay all zips at will
@@ -97,14 +99,17 @@
     // Create a timer to refresh the data
     // and update the page
     Rx.Observable
-      .interval(3000)
+      .interval(20000)
       .flatMapLatest(() => replayZipsStream)
-      .do(
-        (...args) => console.log('next2', ...args),
-        (...args) => console.log('error2', ...args),
-        (...args) => console.log('done2', ...args)
-      )
-      .forEach((...args) => console.log('forEach', ...args));
+      .flatMap(zipTemperatureStreamFactory)
+      .forEach(({ zip, temp }) => {
+        console.log('Updating!', zip, temp);
+
+        const locationEle = document.getElementById(`zip-${zip}`);
+        const tempEle = locationEle.querySelector('.temp');
+
+        tempEle.innerHTML = `${temp}&deg;F`;
+      });
 </script>
 </body>
 </html>
