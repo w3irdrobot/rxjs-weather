@@ -43,7 +43,7 @@
     const btnClickStream =
       Rx.Observable
         .fromEvent(addLocationBtn, 'click')
-        .map(() => true);
+        .mapTo(true);
 
     // Get stream of zip codes
     const zipInputStream =
