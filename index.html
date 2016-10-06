@@ -32,7 +32,7 @@
       <button id="add-location">Add Location</button>
     </div>
   </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.1.0/rx.all.min.js"></script>
+  <script src="https://unpkg.com/@reactivex/rxjs@5.0.0-beta.12/dist/global/Rx.min.js"></script>
   <script>
     // Grab HTML elements
     const appContainer = document.getElementById('app-container');
@@ -60,7 +60,7 @@
 
     // Create reusable temperature fetching stream
     const getTemperature = zip =>
-      fetch(`http://api.openweathermap.org/data/2.5/weather?q=${zip},us&units=imperial&appid=dc34bf2362e70d187c5260789689c52c`)
+      fetch(`http://api.openweathermap.org/data/2.5/weather?q=${zip},us&units=imperial&APPID=3f27e0ef44b496731c1e11874f97d037`)
         .then(res => res.json());
 
     const zipTemperatureStreamFactory = zip =>
@@ -100,7 +100,7 @@
     // and update the page
     Rx.Observable
       .interval(20000)
-      .flatMapLatest(() => replayZipsStream)
+      .switchMap(() => replayZipsStream)
       .flatMap(zipTemperatureStreamFactory)
       .forEach(({ zip, temp }) => {
         console.log('Updating!', zip, temp);
